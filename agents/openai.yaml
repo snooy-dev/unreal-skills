@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unreal Skills"
+  short_description: "Safely operate Unreal Editor across engine versions"
+  default_prompt: "Use $unreal-skills to inspect this Unreal project, select the matching engine-version guidance, and perform the editor task safely."
