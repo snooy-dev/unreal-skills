@@ -1,8 +1,6 @@
 # Unreal Skills
 
-Version-aware Unreal Editor automation for Codex and Claude Code. The repository contains one shared Agent Skill plus native plugin manifests for both clients.
-
-The initial release targets Unreal Engine 5.8.x. Hotfix versions share the same guide, so UE 5.8.1 resolves to `versions/5.8`.
+Unreal Editor skills for Codex and Claude Code.
 
 ## Features
 
@@ -86,24 +84,13 @@ ModelContextProtocol.GenerateClientConfig Codex
 ModelContextProtocol.GenerateClientConfig ClaudeCode
 ```
 
-To configure both clients at once:
+To configure all clients at once:
 
 ```text
 ModelContextProtocol.GenerateClientConfig All
 ```
 
 Codex reads `.codex/config.toml`. Claude Code reads `.mcp.json` from the project root. Launch the selected client from that project root.
-
-## Project inspection
-
-The skill has no host Python dependency. Codex or Claude Code inspects the project with its built-in file and process tools before editor work:
-
-1. Read `EngineAssociation` and plugin declarations from the `.uproject` file.
-2. Resolve the engine's major.minor version from the association or the matching `Engine/Build/Build.version` file.
-3. Inspect `.codex/config.toml` for Codex or the project-root `.mcp.json` for Claude Code.
-4. Check whether Unreal Editor is running and inspect the newest files under `Saved/Logs` and `Saved/Crashes` when connection loss or a crash is relevant.
-
-These checks are read-only. Unreal Editor's embedded Python is unrelated to project inspection and is used only as an explicitly approved fallback for editor automation.
 
 ## Validate
 
