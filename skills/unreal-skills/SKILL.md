@@ -19,10 +19,10 @@ The resolver is read-only. If it cannot resolve a custom/GUID engine association
 ## Establish the control plane
 
 1. Report the resolver's MCP configuration and plugin states before attempting editor mutations.
-2. Treat a missing project `.codex/config.toml`, missing `mcp_servers.unreal-mcp` entry, malformed URL, or explicitly disabled MCP plugin as an actionable configuration state. Tell the user what is missing or disabled.
+2. Select the configuration for the active client from `mcp_configs`: Codex uses `.codex/config.toml`; Claude Code uses the project-root `.mcp.json`. Treat a missing file, missing `unreal-mcp` entry, malformed URL, or explicitly disabled MCP server as an actionable configuration state. Tell the user what is missing or disabled.
 3. Connect through Unreal MCP and use its tool-search workflow. Issue MCP calls serially; Unreal executes tool invocations on the game thread.
 4. Do not bypass unavailable MCP with shell edits, UI automation, commandlets, direct asset-file operations, or Python execution unless the user explicitly requests or approves that bypass.
-5. If MCP is unavailable, follow the selected version guide's connection triage. Distinguish configuration, server-not-started, editor-not-running/crashed, and Codex-restart cases.
+5. If MCP is unavailable, follow the selected version guide's connection triage. Distinguish configuration, server-not-started, editor-not-running/crashed, and client reconnect/restart cases.
 
 ## Perform editor work
 

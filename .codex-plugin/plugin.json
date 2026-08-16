@@ -1,0 +1,25 @@
+{
+  "name": "unreal-skills",
+  "version": "0.1.0",
+  "description": "Safely operate Unreal Editor through native Unreal MCP and official Python editor scripting.",
+  "author": {
+    "name": "snooy-dev",
+    "url": "https://github.com/snooy-dev"
+  },
+  "homepage": "https://github.com/snooy-dev/unreal-skills",
+  "repository": "https://github.com/snooy-dev/unreal-skills",
+  "keywords": ["unreal-engine", "unreal-mcp", "editor-scripting"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Unreal Skills",
+    "shortDescription": "Safely automate Unreal Editor workflows",
+    "longDescription": "Inspect and operate supported Unreal Engine projects through native Unreal MCP and official Python editor scripting with version-aware safety policies.",
+    "developerName": "snooy-dev",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/snooy-dev/unreal-skills",
+    "defaultPrompt": [
+      "Inspect this Unreal project and perform the requested editor task safely."
+    ]
+  }
+}

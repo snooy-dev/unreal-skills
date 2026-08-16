@@ -17,7 +17,7 @@ from typing import Any
 
 try:
     import tomllib
-except ModuleNotFoundError:  # Python 3.10 compatibility for external Codex runtimes.
+except ModuleNotFoundError:  # Python 3.10 compatibility for external agent runtimes.
     tomllib = None  # type: ignore[assignment]
 
 
@@ -206,7 +206,7 @@ def fallback_mcp_config(config_path: Path) -> dict[str, Any] | None:
     return values if in_server or values else None
 
 
-def inspect_mcp_config(project_root: Path) -> dict[str, Any]:
+def inspect_codex_mcp_config(project_root: Path) -> dict[str, Any]:
     config_path = project_root / ".codex" / "config.toml"
     result: dict[str, Any] = {"path": str(config_path), "status": "missing_file", "url": None}
     if not config_path.is_file():
@@ -232,6 +232,37 @@ def inspect_mcp_config(project_root: Path) -> dict[str, Any]:
     enabled = server.get("enabled", True)
     result.update(status="configured" if enabled is not False else "disabled", url=url, enabled=enabled)
     return result
+
+
+def inspect_claude_mcp_config(project_root: Path) -> dict[str, Any]:
+    config_path = project_root / ".mcp.json"
+    result: dict[str, Any] = {"path": str(config_path), "status": "missing_file", "url": None}
+    if not config_path.is_file():
+        return result
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        result.update(status="invalid", error=str(exc))
+        return result
+    servers = config.get("mcpServers") if isinstance(config, dict) else None
+    server = servers.get("unreal-mcp") if isinstance(servers, dict) else None
+    if not isinstance(server, dict):
+        result["status"] = "missing_server"
+        return result
+    url = server.get("url")
+    if not isinstance(url, str) or not re.fullmatch(r"https?://[^\s]+", url):
+        result.update(status="invalid", error="mcpServers.unreal-mcp.url is missing or invalid")
+        return result
+    enabled = server.get("enabled", True)
+    result.update(status="configured" if enabled is not False else "disabled", url=url, enabled=enabled)
+    return result
+
+
+def inspect_mcp_configs(project_root: Path) -> dict[str, dict[str, Any]]:
+    return {
+        "codex": inspect_codex_mcp_config(project_root),
+        "claude_code": inspect_claude_mcp_config(project_root),
+    }
 
 
 def running_editor_processes() -> list[dict[str, Any]]:
@@ -323,7 +354,7 @@ def inspect(args: argparse.Namespace) -> dict[str, Any]:
         "version_directory": str(version_directory),
         "version_supported": version_directory.is_dir(),
         "plugins": plugin_states(project_data),
-        "mcp_config": inspect_mcp_config(project_root),
+        "mcp_configs": inspect_mcp_configs(project_root),
         "editor_processes": running_editor_processes(),
         "recent_log_or_crash_artifacts": artifacts,
     }

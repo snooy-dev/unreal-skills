@@ -29,7 +29,7 @@ When a working MCP connection disappears:
 4. If it does not exist, compare process disappearance time with project log and crash-report timestamps.
 5. Treat `Fatal error`, `Unhandled Exception`, an ensure promoted to fatal, a crash folder, or CrashReportClient activity as crash evidence.
 6. If no crash evidence exists and the log shows orderly shutdown, report that the editor was closed.
-7. If the editor/server is healthy but Codex lacks tools after config changes, report that Codex reconnect/restart may be required.
+7. If the editor/server is healthy but the active client lacks tools after config changes, report that a client reconnect or restart may be required.
 
 ## Crash policy
 

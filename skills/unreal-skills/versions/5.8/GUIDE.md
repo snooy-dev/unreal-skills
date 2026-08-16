@@ -17,27 +17,30 @@ Official references:
 - [Scripting the Unreal Editor Using Python](https://dev.epicgames.com/documentation/unreal-engine/scripting-the-unreal-editor-using-python)
 - [Python API 5.8](https://dev.epicgames.com/documentation/en-us/unreal-engine/python-api/?application_version=5.8)
 - [Codex Model Context Protocol](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
+- [Claude Code Model Context Protocol](https://code.claude.com/docs/en/mcp)
 
 ## Diagnose configuration before connecting
 
 Inspect the resolver output and report every applicable state:
 
-1. `mcp_config.status = missing_file`: the project has no `.codex/config.toml`.
-2. `missing_server`: the project config exists but has no `mcp_servers.unreal-mcp` table.
-3. `invalid`: the entry lacks a valid HTTP URL.
-4. `disabled`: the project config explicitly disables the `unreal-mcp` server; report it before connecting.
-5. `configured`: retain its URL; do not replace a non-default port/path without user authorization.
-6. `ModelContextProtocol = disabled`: report that Unreal MCP is disabled.
-7. `ModelContextProtocol = not_declared`: report that the project does not explicitly enable it. In UE 5.8 the plugin has `EnabledByDefault: false`, so do not assume it is active without runtime evidence or another enabled plugin dependency.
-8. `AllToolsets = disabled` or `not_declared`: report limited or absent default toolsets. Do not claim the MCP server itself is disabled solely because `AllToolsets` is unavailable.
+1. Select `mcp_configs.codex` when running in Codex or `mcp_configs.claude_code` when running in Claude Code.
+2. `missing_file`: Codex has no `.codex/config.toml`, or Claude Code has no project-root `.mcp.json`.
+3. `missing_server`: the selected config exists but has no `unreal-mcp` entry.
+4. `invalid`: the entry lacks a valid HTTP URL.
+5. `disabled`: the selected config explicitly disables the `unreal-mcp` server; report it before connecting.
+6. `configured`: retain its URL; do not replace a non-default port/path without user authorization.
+7. `ModelContextProtocol = disabled`: report that Unreal MCP is disabled.
+8. `ModelContextProtocol = not_declared`: report that the project does not explicitly enable it. In UE 5.8 the plugin has `EnabledByDefault: false`, so do not assume it is active without runtime evidence or another enabled plugin dependency.
+9. `AllToolsets = disabled` or `not_declared`: report limited or absent default toolsets. Do not claim the MCP server itself is disabled solely because `AllToolsets` is unavailable.
 
-To generate the Codex project configuration from the editor console, propose:
+To generate the active client's project configuration from the editor console, propose one of:
 
 ```text
 ModelContextProtocol.GenerateClientConfig Codex
+ModelContextProtocol.GenerateClientConfig ClaudeCode
 ```
 
-The UE 5.8 Codex writer creates `.codex/config.toml` and refuses to overwrite an existing file. Inspect and preserve existing project configuration before proposing removal or replacement.
+Use `ModelContextProtocol.GenerateClientConfig All` when the user wants both clients configured. UE 5.8 creates `.codex/config.toml` for Codex and project-root `.mcp.json` for Claude Code. JSON configs are merged safely; the Codex TOML writer refuses to overwrite an existing file. Inspect and preserve existing project configuration before proposing removal or replacement.
 
 ## Diagnose a failed MCP connection
 
@@ -47,8 +50,8 @@ Follow this order and report the classification:
 2. Check whether the matching Unreal Editor process is running.
 3. If the editor is running, inspect `Saved/Logs/<Project>.log` and `LogModelContextProtocol` entries. A common cause is that Auto Start Server is off and `ModelContextProtocol.StartServer [port]` was not run.
 4. If the editor is not running, do not immediately label it a normal shutdown. Inspect the newest project log and crash locations using the incident policy. If crash evidence exists, enter the crash policy and stop.
-5. If the editor and server are healthy but Codex does not expose the configured server/tools, report that Codex may need a reconnect or restart. Project-scoped MCP configuration is loaded from trusted-project `.codex/config.toml`; the desktop app's MCP setup flow also requires `Restart` after saving a server.
-6. After new configuration or a Codex restart, reconnect and begin with a read-only tool call. Never retry a mutation first.
+5. If the editor and server are healthy but the active client does not expose the configured server/tools, report that the client may need a reconnect or restart. Confirm the client was launched from the project root containing its configuration.
+6. After new configuration or a client restart, reconnect and begin with a read-only tool call. Never retry a mutation first.
 
 Useful editor console commands:
 
