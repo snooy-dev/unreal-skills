@@ -21,17 +21,17 @@ Official references:
 
 ## Diagnose configuration before connecting
 
-Inspect the resolver output and report every applicable state:
+Inspect the project and report every applicable state:
 
-1. Select `mcp_configs.codex` when running in Codex or `mcp_configs.claude_code` when running in Claude Code.
-2. `missing_file`: Codex has no `.codex/config.toml`, or Claude Code has no project-root `.mcp.json`.
-3. `missing_server`: the selected config exists but has no `unreal-mcp` entry.
-4. `invalid`: the entry lacks a valid HTTP URL.
-5. `disabled`: the selected config explicitly disables the `unreal-mcp` server; report it before connecting.
-6. `configured`: retain its URL; do not replace a non-default port/path without user authorization.
-7. `ModelContextProtocol = disabled`: report that Unreal MCP is disabled.
-8. `ModelContextProtocol = not_declared`: report that the project does not explicitly enable it. In UE 5.8 the plugin has `EnabledByDefault: false`, so do not assume it is active without runtime evidence or another enabled plugin dependency.
-9. `AllToolsets = disabled` or `not_declared`: report limited or absent default toolsets. Do not claim the MCP server itself is disabled solely because `AllToolsets` is unavailable.
+1. Read `.codex/config.toml` when running in Codex or the project-root `.mcp.json` when running in Claude Code.
+2. Report `missing_file` when the active client's configuration file is absent.
+3. Report `missing_server` when the file exists but has no `unreal-mcp` entry.
+4. Report `invalid` when the entry lacks a valid HTTP URL.
+5. Report `disabled` when the entry explicitly disables the `unreal-mcp` server.
+6. Report `configured` and retain its URL; do not replace a non-default port or path without user authorization.
+7. Read the `.uproject` plugin declarations. Report `ModelContextProtocol = disabled` when Unreal MCP is explicitly disabled.
+8. Report `ModelContextProtocol = not_declared` when the project does not explicitly enable it. In UE 5.8 the plugin has `EnabledByDefault: false`, so do not assume it is active without runtime evidence or another enabled plugin dependency.
+9. Report `AllToolsets = disabled` or `not_declared` as limited or absent default toolsets. Do not claim the MCP server itself is disabled solely because `AllToolsets` is unavailable.
 
 To generate the active client's project configuration from the editor console, propose one of:
 

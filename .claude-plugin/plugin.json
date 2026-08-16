@@ -1,6 +1,6 @@
 {
   "name": "unreal-skills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Safely operate Unreal Editor through native Unreal MCP and official Python editor scripting.",
   "author": {
     "name": "snooy-dev"

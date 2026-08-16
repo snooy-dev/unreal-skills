@@ -25,64 +25,51 @@ unreal-skills/
         ├── SKILL.md
         ├── agents/
         ├── references/
-        ├── scripts/
         └── versions/
 ```
 
 The skill under `skills/unreal-skills/` is shared by both clients. The two plugin manifests contain client-specific package metadata only.
 
-## Install the skill
+## Install for an Unreal project
 
-Clone the repository first:
+Download or clone this repository, then locate the complete `skills/unreal-skills` folder. Copy that folder without changing its contents into the skill directory for the client you use.
 
-```powershell
-git clone https://github.com/snooy-dev/unreal-skills.git
-Set-Location unreal-skills
+| Client | Project skill location |
+|---|---|
+| Codex | `<UnrealProjectRoot>/.agents/skills/unreal-skills/` |
+| Claude Code | `<UnrealProjectRoot>/.claude/skills/unreal-skills/` |
+
+For Codex, the finished project layout should contain:
+
+```text
+<UnrealProjectRoot>/
+├── <ProjectName>.uproject
+└── .agents/
+    └── skills/
+        └── unreal-skills/
+            ├── SKILL.md
+            ├── agents/
+            ├── references/
+            └── versions/
 ```
 
-### Codex
+For Claude Code, use the same `unreal-skills` folder under `.claude/skills/`:
 
-Install for the current user:
-
-```powershell
-New-Item -ItemType Directory -Force "$HOME\.agents\skills\unreal-skills" | Out-Null
-Copy-Item -Recurse -Force ".\skills\unreal-skills\*" "$HOME\.agents\skills\unreal-skills"
+```text
+<UnrealProjectRoot>/
+├── <ProjectName>.uproject
+└── .claude/
+    └── skills/
+        └── unreal-skills/
+            ├── SKILL.md
+            ├── agents/
+            ├── references/
+            └── versions/
 ```
 
-Install for one project:
+To support both clients in the same Unreal project, copy the folder to both locations. The contents are identical; only the client-specific parent directory differs.
 
-```powershell
-$ProjectRoot = "D:\path\to\your-unreal-project"
-New-Item -ItemType Directory -Force "$ProjectRoot\.agents\skills\unreal-skills" | Out-Null
-Copy-Item -Recurse -Force ".\skills\unreal-skills\*" "$ProjectRoot\.agents\skills\unreal-skills"
-```
-
-Start a new Codex session after installation if the skill does not appear immediately.
-
-### Claude Code
-
-Install for the current user:
-
-```powershell
-New-Item -ItemType Directory -Force "$HOME\.claude\skills\unreal-skills" | Out-Null
-Copy-Item -Recurse -Force ".\skills\unreal-skills\*" "$HOME\.claude\skills\unreal-skills"
-```
-
-Install for one project:
-
-```powershell
-$ProjectRoot = "D:\path\to\your-unreal-project"
-New-Item -ItemType Directory -Force "$ProjectRoot\.claude\skills\unreal-skills" | Out-Null
-Copy-Item -Recurse -Force ".\skills\unreal-skills\*" "$ProjectRoot\.claude\skills\unreal-skills"
-```
-
-For local plugin development, load the repository directly:
-
-```powershell
-claude --plugin-dir "D:\path\to\unreal-skills"
-```
-
-Plugin marketplace installation is not published yet. The included manifests are ready for local validation and future marketplace packaging.
+Start Codex or Claude Code from the Unreal project root. If a newly created top-level skill directory is not detected in the current session, start a new session or restart the client. Do not copy the repository-level `.codex-plugin` or `.claude-plugin` folders into the project skill directory; they are package manifests for plugin distribution.
 
 ## Configure Unreal MCP
 
@@ -107,15 +94,16 @@ ModelContextProtocol.GenerateClientConfig All
 
 Codex reads `.codex/config.toml`. Claude Code reads `.mcp.json` from the project root. Launch the selected client from that project root.
 
-## Inspect a project
+## Project inspection
 
-The bundled inspector is read-only and requires Python 3.10 or newer:
+The skill has no host Python dependency. Codex or Claude Code inspects the project with its built-in file and process tools before editor work:
 
-```powershell
-python .\skills\unreal-skills\scripts\inspect_unreal_project.py "D:\path\to\Project.uproject" --json
-```
+1. Read `EngineAssociation` and plugin declarations from the `.uproject` file.
+2. Resolve the engine's major.minor version from the association or the matching `Engine/Build/Build.version` file.
+3. Inspect `.codex/config.toml` for Codex or the project-root `.mcp.json` for Claude Code.
+4. Check whether Unreal Editor is running and inspect the newest files under `Saved/Logs` and `Saved/Crashes` when connection loss or a crash is relevant.
 
-Its output includes the resolved engine version, selected guide, Unreal plugin declarations, both client MCP configurations, running editor processes, and recent crash or log artifacts.
+These checks are read-only. Unreal Editor's embedded Python is unrelated to project inspection and is used only as an explicitly approved fallback for editor automation.
 
 ## Validate
 

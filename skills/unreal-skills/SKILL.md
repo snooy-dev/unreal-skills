@@ -10,16 +10,16 @@ Operate Unreal Editor through the project's supported native Unreal MCP integrat
 ## Resolve the project and version
 
 1. Locate the `.uproject` from the user-provided path or current workspace. If more than one candidate exists, identify the intended project before acting.
-2. Run `python <skill-path>/scripts/inspect_unreal_project.py <project-or-directory> --json` with an available Python 3.10+ interpreter.
-3. Read `target_version` and load the matching `versions/<major.minor>/GUIDE.md`. Normalize hotfix releases to major.minor: `5.8.1` selects `versions/5.8/`.
+2. Inspect the project with available file and process tools. Read `EngineAssociation` and plugin declarations from the `.uproject`; resolve custom/GUID associations through the registered engine or `Engine/Build/Build.version`; read the active client's MCP config; check the editor process and recent `Saved/Logs` or `Saved/Crashes` artifacts when relevant. Distinguish observed values from unresolved ones.
+3. Derive the major.minor target and load the matching `versions/<major.minor>/GUIDE.md`. Normalize hotfix releases to major.minor: `5.8.1` selects `versions/5.8/`.
 4. Stop and report an unsupported version when the matching version directory is absent. Never silently use guidance for another engine version.
 
-The resolver is read-only. If it cannot resolve a custom/GUID engine association automatically, inspect the registered engine installation or its `Engine/Build/Build.version`, then select the exact major.minor directory.
+Keep project inspection read-only. Do not use or install host Python for inspection, and do not substitute Unreal's embedded Python for basic file and process checks.
 
 ## Establish the control plane
 
-1. Report the resolver's MCP configuration and plugin states before attempting editor mutations.
-2. Select the configuration for the active client from `mcp_configs`: Codex uses `.codex/config.toml`; Claude Code uses the project-root `.mcp.json`. Treat a missing file, missing `unreal-mcp` entry, malformed URL, or explicitly disabled MCP server as an actionable configuration state. Tell the user what is missing or disabled.
+1. Report the inspected MCP configuration and plugin states before attempting editor mutations.
+2. Inspect the active client's configuration: Codex uses `.codex/config.toml`; Claude Code uses the project-root `.mcp.json`. Treat a missing file, missing `unreal-mcp` entry, malformed URL, or explicitly disabled MCP server as an actionable configuration state. Tell the user what is missing or disabled.
 3. Connect through Unreal MCP and use its tool-search workflow. Issue MCP calls serially; Unreal executes tool invocations on the game thread.
 4. Do not bypass unavailable MCP with shell edits, UI automation, commandlets, direct asset-file operations, or Python execution unless the user explicitly requests or approves that bypass.
 5. If MCP is unavailable, follow the selected version guide's connection triage. Distinguish configuration, server-not-started, editor-not-running/crashed, and client reconnect/restart cases.
